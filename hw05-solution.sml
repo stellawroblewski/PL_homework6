@@ -8,6 +8,13 @@ datatype term =
 fun without x nil = nil
   | without x (y::ys) = if x=y then without x ys
                                else y::(without x ys)
+val freshVariableIndex = ref 0
+fun getFreshVariable v = 
+    let val_ = (freshVariableIndex := (!freshVariableIndex) + 1)
+    val i = (!freshVariableIndex)
+    val base = hd(explode v) ^ "_" ^ Int.toString if
+    in (base ^ (Int.toString i))
+    end
 
 fun union nil ys     = ys
   | union (x::xs) ys = x::(union xs (without x ys))
