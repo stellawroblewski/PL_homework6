@@ -140,6 +140,16 @@ def parseAtom(tokens):
         n = tokens.eatInt()
         return ["Literal",["Int",n],where]
 
+    elif tokens.next() == '(':
+        tokens.eat('(')
+        # Unit literal
+        if tokens.next() == ')':
+            where = tokens.report()
+            e = ["Literal",["Unit"],where]
+        else:
+            e = parseExpn(tokens)
+        tokens.eat(')')
+        return e
     #
     # <atom> ::= <name>
     #
@@ -196,61 +206,13 @@ def eval(env, ast):
     #
     label = ast[0]
 
-    #
-    # E |- e1 V true  E |- e2 V v
-    # ---------------------------
-    #    E |- if(e1,e2,e3) V v
-    #
-    if label == 'If':
-        e1 = ast[1]
-        e2 = ast[2]
-        e3 = ast[3]
-        where = ast[-1]
-        v1 = eval(env,e1)
-        err = "Type error in condition at "+where+". Expected a boolean value."
-        if getBoolValue(v1,err):
-            return eval(env,e2)
-        else:
-            return eval(env,e3)
-
-    # "let val ..." or "let fun ... " or "let fun ... and..." 
-    # 
-    elif label == 'Let':
-        d = ast[1]
-        b = ast[2]
-    #
-    # E |- d V u  [x -> u].E |- b V v
-    # --------------------------------
-    #       E |- let(val(x,r),b) V v
-    #
-        if d[0] == "Val":
-            x = d[1]
-            r = d[2]
-            u = eval(env,r)
-            envp = [(x,u)]+env
-    #
-    #         Ep |- b V v
-    # -------------------------- where Ep := [f->c].E
-    # E |- let(fun(f,x,r),b) V v    and c := (x |-> r; Ep)_
-    #
-    #
-    #
-    # E |- d V u     Ep |- b V v
-    # ----------------------------------------------------- where Ep := [f1->c1...fk->ck].E
-    # E |- let(funs(fun(f1,x1,r1),...,fun(fk,xk,rk)),b) V v   and each ci := (xi |-> ri; Ep)_
-    #
-        elif d[0] == "Fun" or d[0] == "Funs":
-            envp = recBindAll(env,d) # handles both Fun and Funs
-
-
-        return eval(envp,b)
-
+    
     #
     # 
     # ------------------------------
     # E |- fn(x,r) V (x |-> r; E)_cl
     #
-    elif label == 'Lam':
+    if label == 'Lam':
         x = ast[1]
         r = ast[2]
         return ["Clos",x,r,env]
@@ -297,38 +259,6 @@ def eval(env, ast):
     # --------------------------
     #   E |- orelse(e1,e2) V b
     #
-    elif label == 'Or':
-        e1 = ast[1]
-        e2 = ast[2]
-        where = ast[-1]
-        err = "Expected a boolean on the %s side of orelse at "+where+". "
-        v1 = getBoolValue(eval(env,e1),err % "left")
-        if v1:
-            return ["Bool",True]
-        else:
-            v2 = getBoolValue(eval(env,e2),err % "right")
-            return ["Bool",v2]
-
-    #
-    #      E |- e1 V F
-    # ----------------------
-    # E |- andalso(e1,e2) V F
-    #
-    # E |- e1 V T    E |- e2 V b 
-    # ---------------------------
-    #   E |- andalso(e1,e2) V b
-    #
-    elif label == 'And':
-        e1 = ast[1]
-        e2 = ast[2]
-        where = ast[-1]
-        err = "Expected a boolean on the %s side of andalso at "+where+". "
-        v1 = getBoolValue(eval(env,e1),err % "left")
-        if not v1:
-            return ["Bool",False]
-        else:
-            v2 = getBoolValue(eval(env,e2),err % "right")
-            return ["Bool",v2]
 
     #
     # E |- e1 V v1     E |- e2 V v2
@@ -353,64 +283,13 @@ def eval(env, ast):
     # ----------------------------  for v1 >= v2
     #    E |- less(e1,e2) V F
     #
-    elif label == "Less":
-        e1 = ast[1]
-        e2 = ast[2]
-        where = ast[-1]
-        err = "Expected an integer on the %s side of less at "+where+". "
-        v1 = getIntValue(eval(env,e1),err % "left")
-        v2 = getIntValue(eval(env,e2),err % "right")
-        return ["Bool",v1 < v2]
-
-    elif label == "Equals":
-        e1 = ast[1]
-        e2 = ast[2]
-        where = ast[-1]
-        tv1 = eval(env,e1)
-        tv2 = eval(env,e2)
-        if tv1[0] == 'Clos':
-            raise RuntimeError("Comparing a function value at "+where+".")
-        if tv2[0] == 'Clos':
-            raise RuntimeError("Comparing a function value at "+where+".")
-        return ["Bool",tv1 == tv2]
 
     #
     # E |- e1 V v1    E |- e1 V v1
     # ----------------------------
     # E |- pairup(e1,e2) V (v1,v2)
     #
-    elif label == "PairUp":
-        e1 = ast[1]
-        e2 = ast[2]
-        v1 = eval(env,e1)
-        v2 = eval(env,e2)
-        return ["Pair",v1,v2]
 
-    #
-    #  E |- e V (v1,v2)
-    # ------------------
-    # E |- first(e) V v1
-    #
-    elif label == "First":
-        e = ast[1]
-        v = eval(env,e)
-        if v[0] != "Pair":
-            raise RunTimeError("Attempt to extract 1st component of a non-pair at "+ast[-1]+".")
-        else:
-            return v[1]
-
-    #
-    #   E |- e V (v1,v2)
-    # -------------------
-    # E |- second(e) V v2
-    #
-    elif label == "Second":
-        e = ast[1]
-        v = eval(env,e)
-        if v[0] != "Pair":
-            raise RunTimeError("Attempt to extract 2nd component of a non-pair at "+ast[-1]+".")
-        else:
-            return v[2]
 
     #
     # E |- e1 V v1   E |- e2 V v2
@@ -450,11 +329,6 @@ def eval(env, ast):
     # ---------------    ---------------
     # E |- not(e) V F    E |- not(e) V T
     #
-    elif label == "Not":
-        e = ast[1]
-        where = ast[-1]
-        v = getBoolValue(eval(env,e), "Expected a boolean for logical negation at "+where+".")
-        return ["Bool",not v]
 
     else:
         return ["Bottom"]
