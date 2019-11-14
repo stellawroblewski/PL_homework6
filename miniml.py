@@ -124,7 +124,7 @@ def parseAppl(tokens):
     #
     # <appl> ::= <appl> <nega> | <nega>
     #
-    e = parseExpn(tokens)
+    e = parseAtom(tokens)
     while tokens.next() != ";":
         where = tokens.report()
         ep = parseAtom(tokens)
