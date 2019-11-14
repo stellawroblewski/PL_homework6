@@ -92,46 +92,21 @@ def parseExpn(tokens):
     # <expn> ::= let val <name> = <expn> in <expn> end
     #          | if <expn> then <expn> else <expn>
     #          | fn <name> => <expn>
-    if tokens.next() == 'if':
-        tokens.eat('if')
+    
+    if tokens.second() == ':=':
+        name=tokens.next()
+        tokens.eat(name)
+        tokens.eat(":=")
         e1 = parseExpn(tokens)
-        tokens.eat('then')
-        e2 = parseExpn(tokens)
-        tokens.eat('else')
-        e3 = parseExpn(tokens)
-        return ["If",e1,e2,e3,where]
-    elif tokens.next() == 'let':
-        tokens.eat('let')
-        if tokens.next() == 'val':
-            tokens.eat('val')
-            where_x = tokens.report()
-            x = tokens.eatName()
-            tokens.eat('=')
-            r = parseExpn(tokens)
-            d = ["Val",x,r,where_x]
-        else:
-            tokens.eat('fun')
-            where_f = tokens.report()
-            f = tokens.eatName()
-            x = tokens.eatName()
-            tokens.eat('=')
-            r = parseExpn(tokens)
-            d = ["Fun",f,x,r,where_f]
-            while tokens.next() == 'and':
-                where_and = tokens.report()
-                tokens.eat('and')
-                where_f = tokens.report()
-                f = tokens.eatName()
-                x = tokens.eatName()
-                tokens.eat('=')
-                r = parseExpn(tokens)
-                dp = ["Fun",f,x,r,where_f]
-                d = ["Funs",d,dp,where_and]
-        tokens.eat('in')
-        b = parseExpn(tokens)
-        tokens.eat('end')
-        return ["Let",d,b,where]
-            
+        return [name,e1,where]
+
+    if tokens.next() == "fn":
+        tokens.eat('fn')
+        x = tokens.eatName()
+        tokens.eat('=>')
+        r = parseExpn(tokens)
+        return ["Lam",x,r,where]
+             
     elif tokens.next() == "fn":
         tokens.eat('fn')
         x = tokens.eatName()
@@ -139,86 +114,8 @@ def parseExpn(tokens):
         r = parseExpn(tokens)
         return ["Lam",x,r,where]
     else:
-        return parseDisj(tokens)
+        return parseAppl(tokens)
 
-def parseDisj(tokens):
-    #
-    # <disj> ::= <disj> orelse <conj> | <conj>
-    #
-    e = parseConj(tokens)
-    while tokens.next() == 'orelse':
-        where = tokens.report()
-        tokens.eat('orelse')
-        ep = parseConj(tokens)
-        e = ["Or",e,ep,where]
-    return e
-
-def parseConj(tokens):
-    #
-    # <conj> ::= <conj> andalso <cmpn> | <cmpn>
-    #
-    e = parseCmpn(tokens)
-    while tokens.next() == 'andalso':
-        where = tokens.report()
-        tokens.eat('andalso')
-        ep = parseCmpn(tokens)
-        e = ["And",e,ep,where]
-    return e
-
-def parseCmpn(tokens):
-    #
-    # <cmpn> ::= <addn> < <addn> | <addn> = <addn> | <addn>
-    #
-    e = parseAddn(tokens)
-    if tokens.next() == '<':
-        where = tokens.report()
-        tokens.eat('<')
-        ep = parseAddn(tokens)
-        e = ["Less",e,ep,where]
-    elif tokens.next() == '=':
-        where = tokens.report()
-        tokens.eat('=')
-        ep = parseAddn(tokens)
-        e = ["Equals",e,ep,where]
-    return e
-
-def parseAddn(tokens):
-    #
-    # <addn> ::= <addn> + <mult> | <addn> - <mult> | <mult>
-    #
-    e = parseMult(tokens)
-    while tokens.next() in ['+','-']:
-        where = tokens.report()
-        if tokens.next() == '+':
-            tokens.eat('+')
-            ep = parseMult(tokens)
-            e = ["Plus",e,ep,where]
-        elif tokens.next() == '-':
-            tokens.eat('-')
-            ep = parseMult(tokens)
-            e = ["Minus",e,ep,where]
-    return e
-
-def parseMult(tokens): 
-    #
-    # <mult> ::= <mult> * <nega> | <nega>
-    #
-    e = parseAppl(tokens)
-    while tokens.next() in ['*','div','mod']:
-        where = tokens.report()
-        if tokens.next() == '*':
-            tokens.eat('*')
-            ep = parseAppl(tokens)
-            e = ["Times",e,ep,where]
-        elif tokens.next() == 'div':
-            tokens.eat('div')
-            ep = parseAppl(tokens)
-            e = ["Div",e,ep,where]
-        elif tokens.next() == 'mod':
-            tokens.eat('mod')
-            ep = parseAppl(tokens)
-            e = ["Mod",e,ep,where]
-    return e
 
 BINOPS = ['andalso','orelse','<','=','+','-','*','div','mod']
 STOPPERS = BINOPS + ['then', 'else', 'in', 'and', 'end', ')', ';', ',','eof']
@@ -227,45 +124,12 @@ def parseAppl(tokens):
     #
     # <appl> ::= <appl> <nega> | <nega>
     #
-    e = parsePrfx(tokens)
-    while tokens.next() not in STOPPERS:
+    e = parseExpn(tokens)
+    while tokens.next() != ";":
         where = tokens.report()
-        ep = parsePrfx(tokens)
+        ep = parseAtom(tokens)
         e = ["App",e,ep,where]
     return e
-
-def parsePrfx(tokens): 
-    #
-    # <atom> ::= not <atom> | print <atom> | <atom>
-    #          | fst <atom> | snd <atom> | exit <atom>
-    #
-    if tokens.next() == 'not':
-        where = tokens.report()
-        tokens.eat('not')
-        e = parseAtom(tokens)
-        return ["Not",e,where]
-    if tokens.next() == 'exit':
-        where = tokens.report()
-        tokens.eat('exit')
-        e = parseAtom(tokens)
-        return ["Exit",e,where]
-    elif tokens.next() == 'print':
-        where = tokens.report()
-        tokens.eat('print')
-        e = parseAtom(tokens)
-        return ["Print",e,where]
-    elif tokens.next() == 'fst':
-        where = tokens.report()
-        tokens.eat('fst')
-        e = parseAtom(tokens)
-        return ["First",e,where]
-    elif tokens.next() == 'snd':
-        where = tokens.report()
-        tokens.eat('snd')
-        e = parseAtom(tokens)
-        return ["Second",e,where]
-    else:
-        return parseAtom(tokens)
 
 def parseAtom(tokens):
     #
@@ -277,35 +141,6 @@ def parseAtom(tokens):
         return ["Literal",["Int",n],where]
 
     #
-    # <atom> ::= () | ( <expn> )
-    #          | ( <expn> ; ... ; <expn> )
-    #          | ( <expn> , <expn> )
-    #
-    elif tokens.next() == '(':
-        tokens.eat('(')
-        # Unit literal
-        if tokens.next() == ')':
-            where = tokens.report()
-            e = ["Literal",["Unit"],where]
-        else:
-            e = parseExpn(tokens)
-            # Pairing up
-            if tokens.next() == ',':
-                where = tokens.report()
-                tokens.eat(',')
-                ep = parseExpn(tokens)
-                e = ["PairUp",e,ep,where]
-            else:
-                # Sequencing
-                while tokens.next() == ';':
-                    where = tokens.report()
-                    tokens.eat(';')
-                    ep = parseExpn(tokens)
-                    e = ["Seq",e,ep,where]
-        tokens.eat(')')
-        return e
-
-    #
     # <atom> ::= <name>
     #
     elif tokens.nextIsName():
@@ -313,23 +148,6 @@ def parseAtom(tokens):
         x = tokens.eatName()
         return ["Var",x,where]
 
-    #
-    # <atom> ::= true
-    #
-    elif tokens.next() == 'true':
-        where = tokens.report()
-        tokens.eat('true')
-        return ["Literal",["Bool",True],where]
-
-    #
-    # <atom> ::= false
-    #
-    elif tokens.next() == 'false':
-        where = tokens.report()
-        tokens.eat('false')
-        return ["Literal",["Bool",False],where]
-
-    #
     else:
         where = tokens.report()
         err1 = "Unexpected token at "+where+". "
@@ -845,7 +663,8 @@ class TokenStream:
         Returns the unchomped token at the front of the stream of tokens.
         """
         return self.tokens[0]
-
+    def second(self):
+        return self.tokens[1]
     def advance(self):
         """ 
         Advances the token stream to the next token, giving back the
