@@ -92,14 +92,20 @@ def parseExpn(tokens):
     # <expn> ::= let val <name> = <expn> in <expn> end
     #          | if <expn> then <expn> else <expn>
     #          | fn <name> => <expn>
-    if tokens.next() == 'if':
-        tokens.eat('if')
+    
+    if tokens.second() == ':=':
+        name=tokens.next()
+        tokens.eat(name)
+        tokens.eat(":=")
         e1 = parseExpn(tokens)
-        tokens.eat('then')
-        e2 = parseExpn(tokens)
-        tokens.eat('else')
-        e3 = parseExpn(tokens)
-        return ["If",e1,e2,e3,where]
+        return [name,e1,where]
+
+    if tokens.next() == "fn":
+        tokens.eat('fn')
+        x = tokens.eatName()
+        tokens.eat('=>')
+        r = parseExpn(tokens)
+        return ["Lam",x,r,where]
     elif tokens.next() == 'let':
         tokens.eat('let')
         if tokens.next() == 'val':
@@ -228,7 +234,7 @@ def parseAppl(tokens):
     # <appl> ::= <appl> <nega> | <nega>
     #
     e = parsePrfx(tokens)
-    while tokens.next() not in STOPPERS:
+    while tokens.next() != ";":
         where = tokens.report()
         ep = parsePrfx(tokens)
         e = ["App",e,ep,where]
@@ -845,7 +851,8 @@ class TokenStream:
         Returns the unchomped token at the front of the stream of tokens.
         """
         return self.tokens[0]
-
+    def second(self):
+        return self.tokens[1]
     def advance(self):
         """ 
         Advances the token stream to the next token, giving back the

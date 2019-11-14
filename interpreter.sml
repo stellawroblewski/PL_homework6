@@ -28,38 +28,37 @@ fun FV (VAR x)          = [x]
 
 fun isValue (VAR _)               = true
 | isValue (LAM(x,t))              = if isValue t then true else false
-| isValue (APP(x,t))              = if isValue t then true (*???*) then (*???*)
-| isValue ( APP(APP(t1,t2, t3)) ) = if isValue APP(t1,t2) andalso isValue t3 then true 
+| isValue ( APP(APP(t1,t2), t3))  = if isValue (APP(t1,t2) )andalso isValue t3 then true else false
+| isValue (APP(x,t))              = if isValue t then true else false (*?*)
 
+(*
 and isListValue NIL           = true
   | isListValue (CONS(t1,t2)) = (isValue t1) andalso (isListValue t2)
   | isListValue _             = false
-
-fun subst (x,v) temp_tracker t = case t of
+*)
+fun subst (x,v) t = case t of
     (VAR y) => 
            if x=y then v 
                   else (VAR y)
   | (LAM (y,r)) =>
            if x=y then t
-                  else let val z = Int.toString(temp_tracker) in
-                     LAM (z, subst (x,v) (temp_tracker + 1) (subst (y,z) (temp_tracker+1) t)) end
-  | (APP (t1,t2))   => APP (subst (x,v) t1 temp_tracker , subst (x,v) t2 temp_tracker)
+                  else let val z = getFreshVariable y in
+                     ( LAM (z, subst (x,v)  (subst (y, VAR z) t)   ) ) end
+  | (APP (t1,t2))   => APP (subst (x,v) t1  , subst (x,v) t2 )
  
 
 fun reduceStep t = case t of
 
-  | (APP (LAM(x,t),s))   => subst (x,s) 0 t (*initializing temp_tracker???*)
-
-  | (APP (t1,t2))        => APP(t1,reduceStep t2)
+    (APP (LAM(x,t),s))   => subst (x,s) t 
 
   | (APP(APP(t1,t2), t3)) => if isValue t1 then APP(APP( t1, reduceStep t2), t3)
                                 else APP(APP(reduceStep t1,  t2), t3)
-
+  | (APP (t1,t2))        => APP(t1,reduceStep t2)
 
 fun reducesTo t = let val t' = reduceStep t
                   in if t=t' then t' else reducesTo t'
                   end
-
+(*
 val map_t = REC("map","f",
            LAM("xs",
                IF (NULL (VAR "xs"),
@@ -105,5 +104,5 @@ val test3 = LET("revhelp",revhelp_t,
             APP(VAR "reverse",APP(VAR "fiblist",NUM 10)))))
 
  
-
+*)
 
