@@ -1,0 +1,4 @@
+two := fn f => fn x => f (f x);
+succ := fn n => (fn f => fn x => f (n f x));
+plus := fn n => (n succ);
+main := plus two two;
