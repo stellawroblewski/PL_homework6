@@ -1,0 +1,27 @@
+zero := (fn f => fn x => x);
+succ := fn n => (fn f => fn x => f (n f x));
+one := succ zero
+plus := fn n => fn m => (n succ m);
+times := fn n => fn m => (fn f => fn x => n (m f) x);
+two := succ (succ zero);
+main := times (succ two) two; 
+true := fn t => fn e => t;
+false := fn t => fn e => e;
+pair := fn f => fn s (fn c => c f s); 
+and := fn p => fn q => p q p; 
+not_zero := fn m => 
+
+power := fn n => fn m => m (times n) one;
+
+pred := 
+
+minus := fn n => fn m => (m pred) n;
+
+less := fn n => fn m => 
+
+equal := fn n => fn m => 
+
+
+
+
+
