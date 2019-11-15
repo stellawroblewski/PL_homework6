@@ -1,0 +1,3 @@
+zz := fn f => fn x => x; 
+zf := fn y => zz;
+main := zf zz;
