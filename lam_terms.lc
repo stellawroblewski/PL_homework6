@@ -8,12 +8,14 @@ main := times (succ two) two;
 true := fn t => fn e => t;
 false := fn t => fn e => e;
 pair := fn f => fn s (fn c => c f s); 
+first := fn p => p true;
+second := fn p => p false;
 and := fn p => fn q => p q p; 
 not_zero := fn m => 
 
 power := fn n => fn m => m (times n) one;
 
-pred := 
+pred := fn n => first (n fn p => pair (second p) (succ(second p)) pair zero zero);
 
 minus := fn n => fn m => (m pred) n;
 
