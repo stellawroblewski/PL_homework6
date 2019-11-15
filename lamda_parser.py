@@ -118,17 +118,17 @@ def stringify(lexp):
         return ""
 
 def parseFile(tokens):
-    print(tokens)
+    #print(tokens)
     expns=[]
     sub_tokens=splitListbyChar(tokens.tokens,";")
-    print(sub_tokens)
+    #print(sub_tokens)
     for t in sub_tokens:
         tokens.tokens=t
-        print("sub tokens is ", t)
+        #print("sub tokens is ", t)
         tokens.expns.append(parseExpn(tokens))
-    print(tokens.expns)
+    #print(tokens.expns)
     e=expressionify(tokens.expns)
-    print(e)
+    #print(e)
     return stringify(e)
 def parseExpn(tokens):
     where = tokens.report()
@@ -690,9 +690,25 @@ def reprTypeOfTaggedValue(taggedValue):
             return ('_|_','error')
     raise RunTimeError("Interpreter incorrectly constructed a bad value.")
 
+
+def print_to_file(ast):
+    import datetime
+    time=str(datetime.datetime.now())
+    filename="tmp"+".sml"#+time +".sml"
+    f=open(filename, "w+")
+    f.write('use "interpreter.sml"; \n')
+    f.write('val ast='+ast+";\n")
+    f.write("reducesTo ast")
+    return filename
+def interpret_ast(ast):
+    import os
+    filename=print_to_file(ast)
+    os.system("sml "+filename)
+
 def interpret(tks, expect_semi = False):
     ast = parseFile(tks)                   # Parse the entry.
     print("ast is ", ast)
+    interpret_ast(ast)
     if expect_semi:
         tks.eat(";")
     tks.checkEOF()                         # Check if everything was consumed by the parse

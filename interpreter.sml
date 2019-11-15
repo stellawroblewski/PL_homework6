@@ -51,11 +51,10 @@ fun subst (x,s) t = case t of
 fun reduceStep t = case t of
 
     (APP (LAM(x,t1),s))   => subst (x,s) t1
-
-  | (APP(APP(t1,t2), t3)) => if isValue t1 then APP(APP( t1, reduceStep t2), t3)
-                                else APP(APP(reduceStep t1,  t2), t3)
   | (APP (t1,t2))        => if isValue t1 then APP(t1,reduceStep t2)
-                                else t
+                                else APP(reduceStep t1, t2)
+  (*| (APP(APP(t1,t2), t3)) => if isValue t1 then APP(APP( t1, reduceStep t2), t3)
+                                else APP(APP(reduceStep t1,  t2), t3)*)
   | (LAM(t1,t2))         => if isValue t2 then t
                               else LAM(t1, reduceStep t2)
 
