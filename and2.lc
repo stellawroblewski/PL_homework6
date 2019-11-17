@@ -27,13 +27,4 @@ minus := fn n => fn m => (m pred ) n;
 
 and := fn p => fn q => p q p;
 
-equal_to_zero := fn n => n (fn x => false) true;
-
-not := fn p => p false true;
-
-less := fn n => fn m => and (equal_to_zero (minus n m)) (not (equal_to_zero(minus m n)));
-
-equals := fn n => fn m => and (not (less m n)) (not (less n m));
-
-
-main := equals zero zero;
+main := and true true;

@@ -321,12 +321,7 @@ def parseAtom(tokens):
 # the lexical analyzer (housed as class TokenStream, below).
 #
 
-RESERVED = ['if','then','else',
-            'let', 'val', 'fun', 'in', 'end',
-            'orelse','andalso',
-            'div','mod',
-            'print',
-            'eof']
+RESERVED = ['eof']
 
 # Characters that separate expressions.
 DELIMITERS = '();,|'

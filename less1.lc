@@ -33,7 +33,4 @@ not := fn p => p false true;
 
 less := fn n => fn m => and (equal_to_zero (minus n m)) (not (equal_to_zero(minus m n)));
 
-equals := fn n => fn m => and (not (less m n)) (not (less n m));
-
-
-main := equals zero zero;
+main := less two three;
