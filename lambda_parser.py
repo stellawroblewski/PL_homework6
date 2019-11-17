@@ -95,6 +95,9 @@ def splitListbyChar(charlist, char):
             interm=[]
         else:
             interm.append(c)
+    for i in result:
+        print(i)
+        print()
     return result
 def expressionify(lexp_list):
     lexp_list=list(reversed(lexp_list))
@@ -102,6 +105,8 @@ def expressionify(lexp_list):
 
     for i in range(1,len(lexp_list)):
         exp=["App", ["Lam", lexp_list[i][0], exp  ], lexp_list[i][1] ] 
+        print(exp)
+        print()
     return exp
 def stringify(lexp):
     if lexp[0]=="App":
@@ -195,8 +200,7 @@ def parseCmpn(tokens):
 
 def parseAddn(tokens):
     #
-    # <addn> ::= <addn> + <mult> | <addn> - <mult> | <mult>
-    #
+    # <addn> ::= <addn> + <mult> 
     e = parseMult(tokens)
     while tokens.next() in ['+','-']:
         where = tokens.report()
@@ -232,7 +236,7 @@ def parseMult(tokens):
     return e
 
 BINOPS = ['andalso','orelse','<','=','+','-','*','div','mod']
-STOPPERS = BINOPS + ['then', 'else', 'in', 'and', 'end', ')', ';', ',','eof']
+STOPPERS = BINOPS + ['then', 'else', 'in', 'end', ')',  ',','eof']
 
 def parseAppl(tokens): 
     #
@@ -290,7 +294,8 @@ def parseAtom(tokens):
         
         e = parseExpn(tokens)
 
-           
+        print("about to eat!")
+        print(tokens.tokens)
         tokens.eat(')')
         return e
 
@@ -317,13 +322,10 @@ def parseAtom(tokens):
 #
 
 RESERVED = ['if','then','else',
-            'let', 'val', 'fun', 'and', 'in', 'end',
-            'fn',
+            'let', 'val', 'fun', 'in', 'end',
             'orelse','andalso',
             'div','mod',
-            'true','false',
             'print',
-            'fst','snd',
             'eof']
 
 # Characters that separate expressions.

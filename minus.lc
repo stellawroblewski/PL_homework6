@@ -1,0 +1,29 @@
+zero := (fn f => fn x => x);
+succ := fn n => (fn f => fn x => f (n f x));
+one := succ zero;
+two := succ one;
+times := fn n => fn m => (fn f => fn x => n (m f) x);
+three := succ two;
+
+
+
+true := fn t => fn e => t;
+
+false := fn t => fn e => e;
+
+pair := fn f => fn s => fn c => c f s; 
+
+first := fn p => p (true);
+
+second := fn p => p (false);
+
+
+phi := fn x => pair (second x) (succ (second x));
+
+pred := fn n => first ( n phi (pair zero zero ));
+
+
+minus := fn n => fn m => (m pred ) n;
+
+
+main := minus (times two three) two;

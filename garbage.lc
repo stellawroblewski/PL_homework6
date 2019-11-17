@@ -1,0 +1,16 @@
+zero := (fn f => fn x => x);
+succ := fn n => (fn f => fn x => f (n f x));
+one := succ zero;
+
+true := fn t => fn e => t;
+
+false := fn t => fn e => e;
+
+pair := fn f => fn s => fn c => c f s; 
+
+first := fn p => p (true);
+
+second := fn p => p (false);
+
+
+main := first (pair one zero);
