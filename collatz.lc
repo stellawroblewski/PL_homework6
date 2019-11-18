@@ -41,12 +41,19 @@ Ycomb := fn f => (fn x => (f (x x)) ) ((fn x => (f(x x)))) ;
 
 is_even_helper := fn f => fn n => if (equal_to_zero n) true (not (f (pred n))) ;
 
-is_even := fn n=> Ycomb (is_even_helper) (n);
+is_even := fn n => Ycomb (is_even_helper) (n);
 
-collatz_next := fn n => if (is_even n) (div n 2) (plus one (times n 3))
 
-collatz_seq_helper := fn f => fn n => if (equals n 1) zero (pair n (collatz_next n) ); 
+div := fn x => fn y => fn n => fn m => fn f => (fn p => equal_to_zero p (zero m f) (m (x p n m f))) (minus y n);
+
+div_helper := Ycomb (div);
+
+division := fn y => div_helper (succ y);
+
+collatz_next := fn n => if (is_even n) (division n two) (plus one (times n three));
+
+collatz_seq_helper := fn f => fn n => if (equals n one) zero (pair n (collatz_next n) ); 
 
 collatz_seq := fn n => Ycomb (collatz_seq_helper) (n);
 
-main := collatz_seq (plus two three);
+main := collatz_seq (plus two two);
