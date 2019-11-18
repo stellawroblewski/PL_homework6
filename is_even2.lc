@@ -1,0 +1,46 @@
+zero := (fn f => fn x => x);
+succ := fn n => (fn f => fn x => f (n f x));
+one := succ zero;
+two := succ one;
+times := fn n => fn m => (fn f => fn x => n (m f) x);
+plus := fn n => fn m => (n succ m);
+three := succ two;
+if := fn b => fn t => fn e => b t e;
+
+
+true := fn t => fn e => t;
+
+false := fn t => fn e => e;
+
+pair := fn f => fn s => fn c => c f s; 
+
+first := fn p => p (true);
+
+second := fn p => p (false);
+
+
+phi := fn x => pair (second x) (succ (second x));
+
+pred := fn n => first ( n phi (pair zero zero ));
+
+
+minus := fn n => fn m => (m pred ) n;
+
+and := fn p => fn q => p q p;
+
+equal_to_zero := fn n => n (fn x => false) true;
+
+not := fn p => p false true;
+
+less := fn n => fn m => and (equal_to_zero (minus n m)) (not (equal_to_zero(minus m n)));
+
+equals := fn n => fn m => and (not (less m n)) (not (less n m));
+
+
+Ycomb := fn f => (fn x => (f (x x)) ) ((fn x => (f(x x)))) ;
+
+is_even_helper := fn f => fn n => if (equal_to_zero n) true (not (f (pred n))) ;
+
+is_even := fn n=> Ycomb (is_even_helper) (n);
+
+main := is_even (succ three);
