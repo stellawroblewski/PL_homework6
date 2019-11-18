@@ -40,4 +40,4 @@ fibIterator := fn p => pair (plus (first p) (second p)) (first p);
 
 fib_it := fn n => first (n fibIterator (pair one zero));
 
-main :=  fib_it ( three);
+main :=  fib_it ( succ (succ three));

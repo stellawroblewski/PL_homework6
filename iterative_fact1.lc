@@ -36,8 +36,8 @@ less := fn n => fn m => and (equal_to_zero (minus n m)) (not (equal_to_zero(minu
 
 equals := fn n => fn m => and (not (less m n)) (not (less n m));
 
-fibIterator := fn p => pair (plus (first p) (second p)) (first p);
+factIterator := fn p => pair (times (first p) (succ (second p)) ) (succ (second p));
 
-fib_it := fn n => first (n fibIterator (pair one zero));
+fact_it := fn n => first (n factIterator (pair one zero));
 
-main :=  fib_it ( three);
+main :=  fact_it zero;
