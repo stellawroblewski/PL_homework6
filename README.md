@@ -23,13 +23,28 @@ and reduces a term like this:
 
 **Part 3. reduction**  
 Written in SML. 
-(NOTE: some of the more complication lambda functions, like fib and collatz, take a decently long time to fully run.)
+(NOTE: some of the more complication lambda functions, like fib and collatz, take a decently long time to fully run. Even simple functions like is_even take at least a minute on small inputs like three.)
 
 **Part 4. testing**  
-Our tests beyond the required lambda calculus functions include a '.lc' files containing a recursive power function, recursive and iterative factorial, is_even, division, and a collatz function.
+Our tests beyond the required lambda calculus functions include a '.lc' files containing a recursive power function, recursive and iterative factorial, is_even, division, and a collatz function. The collatz function does not finish running on the input of 4, ending in an overflow error. We are unsure if this is an error in the lambda calculus implemention, or a result of inefficient interpretation.
 
 **Part 5. write some terms**  
-For each of the required functions there is a simple test implementing them within their named '.lc' files inside of the 'main' function. Additionally, for several of the functions, there are numbered files running various tests on the same function. 
+For each of the required functions there is a simple test implementing them within their named '.lc' files inside of the 'main' function. The implementations of `pred` and `power` were taken from Wikipedia, so we feel the need to at least explain their mechanics here.
+
+`pred` relies on a helper term `phi` that maps a pair (m,n) to (n,n+1):
+
+`pred := fn n => first ( n phi (pair zero zero ))`
+
+n applications of phi to (0,0) results in the pair (n-1,n) if n>0 and simply (0,0) if n=0, so taking the first element of this pair suffices for finding the predicate.
+
+We have 
+
+`power := fn n => fn m => n m`
+
+This correctness may be verified inductively. With m=0, the term reduces to 
+
+
+Additionally, for several of the functions, there are numbered files running various tests on the same function. 
 
 
 
