@@ -1,6 +1,6 @@
 # Homework 06: a lambda calculus reduction engine
 ### Reed CSCI 384 Fall 2019
-
+### Stella Wroblewski and David Tamas-Parris
 ---
 
 ## ASSIGNMENT
@@ -50,7 +50,6 @@ We have
 
 This reduces to
 
-
 (fn f => fn x => f( f (.... f  x)...)  ) m
 
 ~~~> fn x=> m ( m ( m (...m x )    ) ),
@@ -60,7 +59,6 @@ with m repeated n times. Using the same reasoning used to derive times, this wil
 fn x => fn x' => x ( x ( x (... x x'     ))),
 
 with x repeated m^n times. 
-
 
 
 Additionally, for several of the functions, there are numbered files running various tests on the same function. 
