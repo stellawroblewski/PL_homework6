@@ -6,7 +6,8 @@
 ## ASSIGNMENT
 
 **Part 1. The parser.**  
-Written in python. 
+Written in python, making tweaks to the solution for homework 3. The syntax for parsing is similar to that used in class, with a semicolon after each named lambda term. 
+
 **Part 2. The term.**  
 Having parsed these files, you should produce a single lambda caclulus
 term that is to be reduced. This will, of course, require you to
@@ -25,6 +26,12 @@ and reduces a term like this:
 Written in SML. 
 (NOTE: some of the more complication lambda functions, like fib and collatz, take a decently long time to fully run. Even simple functions like is_even take at least a minute on small inputs like three.)
 
+Even though the reduction engine is written in sml, the evaluation of a .lc program is done by the python program. Running a .lc program would happen like this:
+
+`python lambda_engine.py my_program.lc`
+
+The python program creates a large lambda calculus term for evaluation, prints it into a tmp.sml file, and runs the .sml file using the `sys` package.
+
 **Part 4. testing**  
 Our tests beyond the required lambda calculus functions include a '.lc' files containing a recursive power function, recursive and iterative factorial, is_even, division, and a collatz function. The collatz function does not finish running on the input of 4, ending in an overflow error. We are unsure if this is an error in the lambda calculus implemention, or a result of inefficient interpretation.
 
@@ -39,9 +46,21 @@ n applications of phi to (0,0) results in the pair (n-1,n) if n>0 and simply (0,
 
 We have 
 
-`power := fn n => fn m => n m`
+`power := fn m => fn n => n m`
 
-This correctness may be verified inductively. With m=0, the term reduces to 
+This reduces to
+
+
+(fn f => fn x => f( f (.... f  x)...)  ) m
+
+~~~> fn x=> m ( m ( m (...m x )    ) ),
+
+with m repeated n times. Using the same reasoning used to derive times, this will reduce to:
+
+fn x => fn x' => x ( x ( x (... x x'     ))),
+
+with x repeated m^n times. 
+
 
 
 Additionally, for several of the functions, there are numbered files running various tests on the same function. 
