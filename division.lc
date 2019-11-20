@@ -39,9 +39,6 @@ equals := fn n => fn m => and (not (less m n)) (not (less n m));
 
 Ycomb := fn f => (fn x => (f (x x)) ) ((fn x => (f(x x)))) ;
 
-fib_rec := fn f => fn n => (if (equals n zero) zero  (if (equals n one) one (plus (f (pred n)) (f (pred (pred n)))  ) )  );
-
-fact_rec := fn f => fn n => (if (equals(one)(succ n)) (one) (times (x) (f (pred x)));
 
 div := fn x => fn y => fn n => fn m => fn f => (fn p => equal_to_zero p (zero m f) (m (x p n m f))) (minus y n);
 
