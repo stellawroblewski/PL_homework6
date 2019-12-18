@@ -95,9 +95,7 @@ def splitListbyChar(charlist, char):
             interm=[]
         else:
             interm.append(c)
-    for i in result:
-        print(i)
-        print()
+
     return result
 def expressionify(lexp_list):
     lexp_list=list(reversed(lexp_list))
@@ -105,8 +103,7 @@ def expressionify(lexp_list):
 
     for i in range(1,len(lexp_list)):
         exp=["App", ["Lam", lexp_list[i][0], exp  ], lexp_list[i][1] ] 
-        print(exp)
-        print()
+
     return exp
 def stringify(lexp):
     if lexp[0]=="App":
@@ -294,8 +291,7 @@ def parseAtom(tokens):
         
         e = parseExpn(tokens)
 
-        print("about to eat!")
-        print(tokens.tokens)
+
         tokens.eat(')')
         return e
 
@@ -704,7 +700,7 @@ def interpret_ast(ast):
 
 def interpret(tks, expect_semi = False):
     ast = parseFile(tks)                   # Parse the entry.
-    print("ast is ", ast)
+
     interpret_ast(ast)
     if expect_semi:
         tks.eat(";")

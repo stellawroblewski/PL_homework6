@@ -23,5 +23,31 @@ less := fn n => fn m => m;
 
 equal := fn n => fn m => n;
 
+Ycomb := fn f => (fn x => (f (x x)) ) ((fn x => (f(x x)))) ;
 
-main := pred one;
+
+div := fn x => fn y => fn n => fn m => fn f => (fn p => equal_to_zero p (zero m f) (m (x p n m f))) (minus y n);
+
+div_helper := Ycomb (div);
+
+division := fn y => div_helper (succ y);
+
+fib_rec_helper := fn f => fn n => (if (equals n zero) zero  (if (equals n one) one (plus (f (pred n)) (f (pred (pred n)))  ) )  );
+
+fib_rec := fn n => Ycomb (fib_rec_helper) (three) ;
+
+fibIterator := fn p => pair (plus (first p) (second p)) (first p);
+
+fib_it := fn n => first (n fibIterator (pair one zero));
+
+collatz_next := fn n => if (is_even n) (division n two) (plus one (times n three));
+
+collatz_seq_helper := fn f => fn n => if (equals n one) zero (pair n (collatz_next n) ); 
+
+collatz_seq := fn n => Ycomb (collatz_seq_helper) (n);
+
+is_even_helper := fn f => fn n => if (equal_to_zero n) true (not (f (pred n))) ;
+
+is_even := fn n=> Ycomb (is_even_helper) (n);
+
+main := zero;

@@ -33,7 +33,7 @@ Even though the reduction engine is written in sml, the evaluation of a .lc prog
 The python program creates a large lambda calculus term for evaluation, prints it into a tmp.sml file, and runs the .sml file using the `sys` package.
 
 **Part 4. testing**  
-Our tests beyond the required lambda calculus functions include a '.lc' files containing a recursive power function, recursive and iterative factorial, is_even, division, and a collatz function. The collatz function does not finish running on the input of 4, ending in an overflow error. We are unsure if this is an error in the lambda calculus implemention, or a result of inefficient interpretation.
+Our tests beyond the required lambda calculus functions include '.lc' files containing a recursive power function, recursive and iterative factorial, is_even, division, and a collatz function. The collatz function does not finish running on the input of 4, ending in an overflow error. We are unsure if this is an error in the lambda calculus implemention, or a result of inefficient interpretation. We compiled these functions as well as the required functions for part 5 in the file `all_fns.lc`
 
 **Part 5. write some terms**  
 For each of the required functions there is a simple test implementing them within their named '.lc' files inside of the 'main' function. The implementations of `pred` and `power` were taken from Wikipedia, so we feel the need to at least explain their mechanics here.
